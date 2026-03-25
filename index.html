@@ -285,7 +285,7 @@
             <!-- Setup Numbers Phase -->
             <div id="setupPhase">
                 <div class="game-section">
-                    <h3>📝 Enter Your Secret Number</h3>
+                    <h3>Enter Your Secret Number</h3>
                     <p class="player-info">Please enter a number between 1 and 100. The computer won't see it!</p>
                     <div class="input-group">
                         <input type="number" id="playerNumber" min="1" max="100" placeholder="Your number (1-100)">
@@ -300,7 +300,7 @@
 
                 <!-- Player's Turn -->
                 <div class="game-section" id="playerTurnSection" style="display: none;">
-                    <h3>🎯 Your Turn to Guess</h3>
+                    <h3>Your Turn to Guess</h3>
                     <p class="player-info">Guess the Computer's number!</p>
                     <div class="guess-input-group">
                         <input type="number" id="playerGuess" min="1" max="100" placeholder="Your guess (1-100)">
@@ -314,9 +314,9 @@
                     <h3>🤖 Computer's Turn</h3>
                     <p class="player-info" id="computerGuessDisplay"></p>
                     <div class="guess-input-group">
-                        <button style="flex: 1;" onclick="computerResponse('higher')">💡 Higher</button>
-                        <button style="flex: 1;" onclick="computerResponse('lower')">💡 Lower</button>
-                        <button style="flex: 1;" onclick="computerResponse('correct')">✓ Correct</button>
+                        <button style="flex: 1;" onclick="computerResponse('higher')">Higher</button>
+                        <button style="flex: 1;" onclick="computerResponse('lower')">Lower</button>
+                        <button style="flex: 1;" onclick="computerResponse('correct')">Correct</button>
                     </div>
                     <div class="response" id="computerResponse"></div>
                 </div>
@@ -376,9 +376,9 @@
         function updateTurnIndicator() {
             const indicator = document.getElementById('turnIndicator');
             if (game.currentTurn === 'player') {
-                indicator.textContent = `🎯 ${game.playerName}'s Turn to Guess`;
+                indicator.textContent = `${game.playerName}'s Turn to Guess`;
             } else {
-                indicator.textContent = '🤖 Computer\'s Turn to Guess';
+                indicator.textContent = 'Computer\'s Turn to Guess';
             }
             document.getElementById('roundNumber').textContent = game.round;
         }
@@ -401,15 +401,15 @@
             const response = document.getElementById('playerResponse');
             
             if (guess === game.computerNumber) {
-                response.textContent = `🎉 Correct! You found the Computer's number (${game.computerNumber})!`;
+                response.textContent = `Correct! You found the Computer's number (${game.computerNumber})!`;
                 response.classList.add('show', 'found');
                 game.playerFound = true;
                 finishGame('player');
             } else if (guess < game.computerNumber) {
-                response.textContent = `💡 The Computer's number is HIGHER than ${guess}. ⬆️`;
+                response.textContent = `The Computer's number is HIGHER than ${guess}.`;
                 response.classList.add('show', 'higher');
             } else {
-                response.textContent = `💡 The Computer's number is LOWER than ${guess}. ⬇️`;
+                response.textContent = `The Computer's number is LOWER than ${guess}.`;
                 response.classList.add('show', 'lower');
             }
 
@@ -446,10 +446,10 @@
                 game.computerFound = true;
                 finishGame('computer');
             } else if (response === 'higher') {
-                responseDiv.textContent = `Your number is HIGHER than ${computerGuess}. ⬆️`;
+                responseDiv.textContent = `Your number is HIGHER than ${computerGuess}.`;
                 responseDiv.classList.add('show', 'higher');
             } else {
-                responseDiv.textContent = `Your number is LOWER than ${computerGuess}. ⬇️`;
+                responseDiv.textContent = `Your number is LOWER than ${computerGuess}.`;
                 responseDiv.classList.add('show', 'lower');
             }
 
@@ -469,11 +469,9 @@
             const winnerDetails = document.getElementById('winnerDetails');
 
             if (winner === 'player') {
-                winnerEmoji.textContent = '🏆';
                 winnerMessage.textContent = `Congratulations, ${game.playerName}!`;
                 winnerDetails.textContent = `You found the Computer's number in ${game.round} round(s)!`;
             } else {
-                winnerEmoji.textContent = '🤖';
                 winnerMessage.textContent = 'Computer Wins!';
                 winnerDetails.textContent = `The Computer found your number (${game.playerNumber}) in ${game.round} round(s).`;
             }
