@@ -263,7 +263,7 @@
     <div class="container">
         <!-- Setup Screen -->
         <div class="setup-screen active">
-            <h1>🎮 Number Guessing Game</h1>
+            <h1>Number Guessing Game</h1>
             <p class="subtitle">Play against the Computer</p>
             
             <div class="input-group">
@@ -276,7 +276,7 @@
 
         <!-- Game Screen -->
         <div class="game-screen">
-            <h1>🎮 Number Guessing Game</h1>
+            <h1>Number Guessing Game</h1>
             
             <div class="round-display">
                 <strong>Round: <span id="roundNumber">1</span></strong>
@@ -286,7 +286,7 @@
             <div id="setupPhase">
                 <div class="game-section">
                     <h3>Enter Your Secret Number</h3>
-                    <p class="player-info">Please enter a number between 1 and 100. The computer won't see it!</p>
+                    <p class="player-info">Please enter a number between 1 and 100. The computer won't see and know it!</p>
                     <div class="input-group">
                         <input type="number" id="playerNumber" min="1" max="100" placeholder="Your number (1-100)">
                     </div>
@@ -311,7 +311,7 @@
 
                 <!-- Computer's Turn -->
                 <div class="game-section" id="computerTurnSection" style="display: none;">
-                    <h3>🤖 Computer's Turn</h3>
+                    <h3>Computer's Turn</h3>
                     <p class="player-info" id="computerGuessDisplay"></p>
                     <div class="guess-input-group">
                         <button style="flex: 1;" onclick="computerResponse('higher')">Higher</button>
@@ -441,7 +441,7 @@
             const responseDiv = document.getElementById('computerResponse');
             
             if (response === 'correct') {
-                responseDiv.textContent = `🎉 Computer found your number (${game.playerNumber})!`;
+                responseDiv.textContent = `Computer found your number (${game.playerNumber})!`;
                 responseDiv.classList.add('show', 'found');
                 game.computerFound = true;
                 finishGame('computer');
