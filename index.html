@@ -325,18 +325,50 @@
 
         <!-- Winner Screen -->
         <div class="winner-screen" id="winnerScreen">
-                    <link rel="stylesheet" href="style.css">
+            <div class="emoji" id="winnerEmoji"></div>
+            <h2 id="winnerMessage"></h2>
+            <p id="winnerDetails"></p>
+            <div class="button-group">
+                <button onclick="playAgain()">Play Again</button>
+                <button class="secondary" onclick="resetGame()">Change Name</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let game = {
+            playerName: '',
+            playerNumber: null,
+            computerNumber: Math.floor(Math.random() * 100) + 1,
+            round: 1,
+            computerGuesses: new Set(),
+            currentTurn: 'player',
+            playerFound: false,
+            computerFound: false,
+            computerMin: 1,
+            computerMax: 100,
+            currentComputerGuess: null
+        };
+
+        function startGame() {
+            game.playerName = document.getElementById('playerName').value || 'Player';
+            document.querySelector('.setup-screen').classList.remove('active');
+            document.querySelector('.game-screen').classList.add('active');
         }
 
         function setPlayerNumber() {
-            const number = parseInt(document.getElementById('playerNumber').value);
-            
+            const number = parseInt(document.getElementById('playerNumber').value, 10);
+
             if (isNaN(number) || number < 1 || number > 100) {
                 alert('Please enter a valid number between 1 and 100');
                 return;
             }
 
             game.playerNumber = number;
+            game.computerMin = 1;
+            game.computerMax = 100;
+            game.currentComputerGuess = null;
+
             document.getElementById('setupPhase').style.display = 'none';
             document.getElementById('playingPhase').style.display = 'block';
             startRound();
@@ -349,11 +381,9 @@
 
         function updateTurnIndicator() {
             const indicator = document.getElementById('turnIndicator');
-            if (game.currentTurn === 'player') {
-                indicator.textContent = `${game.playerName}'s Turn to Guess`;
-            } else {
-                indicator.textContent = 'Computer\'s Turn to Guess';
-            }
+            indicator.textContent = game.currentTurn === 'player'
+                ? `${game.playerName}'s Turn to Guess`
+                : 'Computer\'s Turn to Guess';
             document.getElementById('roundNumber').textContent = game.round;
         }
 
@@ -361,30 +391,34 @@
             document.getElementById('playerTurnSection').style.display = 'block';
             document.getElementById('computerTurnSection').style.display = 'none';
             document.getElementById('playerGuess').value = '';
-            document.getElementById('playerResponse').classList.remove('show');
+
+            const responseEl = document.getElementById('playerResponse');
+            responseEl.className = 'response';
+            responseEl.textContent = '';
         }
 
         function playerGuess() {
-            const guess = parseInt(document.getElementById('playerGuess').value);
-            
+            const guess = parseInt(document.getElementById('playerGuess').value, 10);
+
             if (isNaN(guess) || guess < 1 || guess > 100) {
                 alert('Please enter a valid number between 1 and 100');
                 return;
             }
 
             const response = document.getElementById('playerResponse');
-            
+            response.className = 'response show';
+
             if (guess === game.computerNumber) {
-                response.textContent = `Correct! You found the Computer's number (${game.computerNumber})!`;
-                response.classList.add('show', 'found');
+                response.textContent = `Correct! You found the Computer's number (${game.computerNumber}).`;
+                response.classList.add('found');
                 game.playerFound = true;
                 finishGame('player');
             } else if (guess < game.computerNumber) {
                 response.textContent = `The Computer's number is HIGHER than ${guess}.`;
-                response.classList.add('show', 'higher');
+                response.classList.add('higher');
             } else {
                 response.textContent = `The Computer's number is LOWER than ${guess}.`;
-                response.classList.add('show', 'lower');
+                response.classList.add('lower');
             }
 
             setTimeout(() => {
@@ -392,39 +426,83 @@
                     game.currentTurn = 'computer';
                     showComputerTurn();
                 }
-            }, 2000);
+            }, 1200);
+        }
+
+        function getBoundedComputerGuess() {
+            if (game.computerMin > game.computerMax) {
+                return null;
+            }
+
+            const mid = Math.floor((game.computerMin + game.computerMax) / 2);
+            if (!game.computerGuesses.has(mid)) {
+                return mid;
+            }
+
+            for (let offset = 1; offset <= 100; offset++) {
+                const up = mid + offset;
+                const down = mid - offset;
+
+                if (up <= game.computerMax && !game.computerGuesses.has(up)) {
+                    return up;
+                }
+                if (down >= game.computerMin && !game.computerGuesses.has(down)) {
+                    return down;
+                }
+            }
+
+            return null;
         }
 
         function showComputerTurn() {
             document.getElementById('playerTurnSection').style.display = 'none';
             document.getElementById('computerTurnSection').style.display = 'block';
-            
-            let computerGuess;
-            do {
-                computerGuess = Math.floor(Math.random() * 100) + 1;
-            } while (game.computerGuesses.has(computerGuess));
-            
+
+            const computerGuess = getBoundedComputerGuess();
+            if (computerGuess === null) {
+                alert('Conflicting hints detected. Resetting game.');
+                resetGame();
+                return;
+            }
+
+            game.currentComputerGuess = computerGuess;
             game.computerGuesses.add(computerGuess);
-            document.getElementById('computerGuessDisplay').textContent = `Computer guesses: ${computerGuess}`;
-            document.getElementById('computerResponse').classList.remove('show', 'higher', 'lower', 'correct');
+            document.getElementById('computerGuessDisplay').textContent =
+                `Computer guesses: ${computerGuess} (range ${game.computerMin}-${game.computerMax})`;
+
+            const responseEl = document.getElementById('computerResponse');
+            responseEl.className = 'response';
+            responseEl.textContent = '';
             updateTurnIndicator();
         }
 
         function computerResponse(response) {
-            const computerGuess = parseInt(document.getElementById('computerGuessDisplay').textContent.split(': ')[1]);
+            const computerGuess = game.currentComputerGuess;
             const responseDiv = document.getElementById('computerResponse');
-            
+            responseDiv.className = 'response show';
+
             if (response === 'correct') {
-                responseDiv.textContent = `Computer found your number (${game.playerNumber})!`;
-                responseDiv.classList.add('show', 'found');
+                responseDiv.textContent = `Computer found your number (${game.playerNumber}).`;
+                responseDiv.classList.add('found');
                 game.computerFound = true;
                 finishGame('computer');
-            } else if (response === 'higher') {
+                return;
+            }
+
+            if (response === 'higher') {
+                game.computerMin = Math.max(game.computerMin, computerGuess + 1);
                 responseDiv.textContent = `Your number is HIGHER than ${computerGuess}.`;
-                responseDiv.classList.add('show', 'higher');
+                responseDiv.classList.add('higher');
             } else {
+                game.computerMax = Math.min(game.computerMax, computerGuess - 1);
                 responseDiv.textContent = `Your number is LOWER than ${computerGuess}.`;
-                responseDiv.classList.add('show', 'lower');
+                responseDiv.classList.add('lower');
+            }
+
+            if (game.computerMin > game.computerMax) {
+                alert('Conflicting hints detected. Please provide consistent feedback.');
+                resetGame();
+                return;
             }
 
             setTimeout(() => {
@@ -433,18 +511,17 @@
                     game.round++;
                     showPlayerTurn();
                 }
-            }, 2000);
+            }, 1200);
         }
 
         function finishGame(winner) {
             const winnerScreen = document.getElementById('winnerScreen');
-            const winnerEmoji = document.getElementById('winnerEmoji');
             const winnerMessage = document.getElementById('winnerMessage');
             const winnerDetails = document.getElementById('winnerDetails');
 
             if (winner === 'player') {
                 winnerMessage.textContent = `Congratulations, ${game.playerName}!`;
-                winnerDetails.textContent = `You found the Computer's number in ${game.round} round(s)!`;
+                winnerDetails.textContent = `You found the Computer's number in ${game.round} round(s).`;
             } else {
                 winnerMessage.textContent = 'Computer Wins!';
                 winnerDetails.textContent = `The Computer found your number (${game.playerNumber}) in ${game.round} round(s).`;
@@ -461,10 +538,12 @@
                 computerNumber: Math.floor(Math.random() * 100) + 1,
                 round: 1,
                 computerGuesses: new Set(),
-                gamePhase: 'playing',
                 currentTurn: 'player',
                 playerFound: false,
-                computerFound: false
+                computerFound: false,
+                computerMin: 1,
+                computerMax: 100,
+                currentComputerGuess: null
             };
 
             document.getElementById('winnerScreen').classList.remove('active');
