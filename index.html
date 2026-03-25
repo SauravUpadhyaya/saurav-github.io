@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Number Guessing Game</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+
+        .setup-screen, .game-screen {
+            display: none;
+        }
+
+        .setup-screen.active, .game-screen.active {
+            display: block;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+        }
+
+        input[type="text"],
+        input[type="number"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus,
+        input[type="number"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .game-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            border-left: 4px solid #667eea;
+        }
+
+        .game-section h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        .player-info {
+            background: #e8eaf6;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .player-info strong {
+            color: #667eea;
+        }
+
+        .guess-input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .guess-input-group input {
+            flex: 1;
+        }
+
+        .guess-input-group button {
+            flex: 0 0 100px;
+            padding: 12px;
+        }
+
+        .response {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-weight: 600;
+            text-align: center;
+            display: none;
+        }
+
+        .response.show {
+            display: block;
+        }
+
+        .response.higher {
+            background: #c8e6c9;
+            color: #2e7d32;
+            border: 2px solid #4caf50;
+        }
+
+        .response.lower {
+            background: #ffccbc;
+            color: #d84315;
+            border: 2px solid #ff6f00;
+        }
+
+        .response.correct {
+            background: #fff9c4;
+            color: #f57f17;
+            border: 2px solid #fbc02d;
+            font-size: 1.2em;
+        }
+
+        .response.found {
+            background: #c8e6c9;
+            color: #1b5e20;
+            border: 2px solid #4caf50;
+            font-size: 1.2em;
+        }
+
+        .round-display {
+            text-align: center;
+            font-size: 1.1em;
+            color: #666;
+            margin-bottom: 20px;
+            padding: 10px;
+            background: white;
+            border-radius: 8px;
+        }
+
+        .winner-screen {
+            display: none;
+            text-align: center;
+            padding: 40px;
+            background: linear-gradient(135deg, #fff9c4 0%, #ffeb3b 100%);
+            border-radius: 15px;
+        }
+
+        .winner-screen.active {
+            display: block;
+        }
+
+        .winner-screen h2 {
+            font-size: 3em;
+            color: #f57f17;
+            margin-bottom: 20px;
+        }
+
+        .winner-screen .emoji {
+            font-size: 4em;
+            margin: 20px 0;
+        }
+
+        .winner-screen p {
+            font-size: 1.3em;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .button-group button {
+            flex: 1;
+        }
+
+        .button-group button.secondary {
+            background: linear-gradient(135deg, #999 0%, #666 100%);
+        }
+
+        .turn-indicator {
+            display: inline-block;
+            padding: 8px 16px;
+            background: #667eea;
+            color: white;
+            border-radius: 20px;
+            font-size: 0.95em;
+            margin-bottom: 15px;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 25px;
+            }
+
+            h1 {
+                font-size: 2em;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Setup Screen -->
+        <div class="setup-screen active">
+            <h1>🎮 Number Guessing Game</h1>
+            <p class="subtitle">Play against the Computer</p>
+            
+            <div class="input-group">
+                <label for="playerName">Enter Your Name:</label>
+                <input type="text" id="playerName" placeholder="e.g., Alex" value="Player">
+            </div>
+
+            <button onclick="startGame()">Start Game</button>
+        </div>
+
+        <!-- Game Screen -->
+        <div class="game-screen">
+            <h1>🎮 Number Guessing Game</h1>
+            
+            <div class="round-display">
+                <strong>Round: <span id="roundNumber">1</span></strong>
+            </div>
+
+            <!-- Setup Numbers Phase -->
+            <div id="setupPhase">
+                <div class="game-section">
+                    <h3>📝 Enter Your Secret Number</h3>
+                    <p class="player-info">Please enter a number between 1 and 100. The computer won't see it!</p>
+                    <div class="input-group">
+                        <input type="number" id="playerNumber" min="1" max="100" placeholder="Your number (1-100)">
+                    </div>
+                    <button onclick="setPlayerNumber()">Confirm Number</button>
+                </div>
+            </div>
+
+            <!-- Playing Phase -->
+            <div id="playingPhase" style="display: none;">
+                <div class="turn-indicator" id="turnIndicator"></div>
+
+                <!-- Player's Turn -->
+                <div class="game-section" id="playerTurnSection" style="display: none;">
+                    <h3>🎯 Your Turn to Guess</h3>
+                    <p class="player-info">Guess the Computer's number!</p>
+                    <div class="guess-input-group">
+                        <input type="number" id="playerGuess" min="1" max="100" placeholder="Your guess (1-100)">
+                        <button onclick="playerGuess()">Guess</button>
+                    </div>
+                    <div class="response" id="playerResponse"></div>
+                </div>
+
+                <!-- Computer's Turn -->
+                <div class="game-section" id="computerTurnSection" style="display: none;">
+                    <h3>🤖 Computer's Turn</h3>
+                    <p class="player-info" id="computerGuessDisplay"></p>
+                    <div class="guess-input-group">
+                        <button style="flex: 1;" onclick="computerResponse('higher')">💡 Higher</button>
+                        <button style="flex: 1;" onclick="computerResponse('lower')">💡 Lower</button>
+                        <button style="flex: 1;" onclick="computerResponse('correct')">✓ Correct</button>
+                    </div>
+                    <div class="response" id="computerResponse"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Winner Screen -->
+        <div class="winner-screen" id="winnerScreen">
+            <div class="emoji" id="winnerEmoji"></div>
+            <h2 id="winnerMessage"></h2>
+            <p id="winnerDetails"></p>
+            <div class="button-group">
+                <button onclick="playAgain()">Play Again</button>
+                <button class="secondary" onclick="resetGame()">Change Name</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let game = {
+            playerName: '',
+            playerNumber: null,
+            computerNumber: Math.floor(Math.random() * 100) + 1,
+            round: 1,
+            computerGuesses: new Set(),
+            gamePhase: 'setup', // setup, playing, finished
+            currentTurn: 'player', // player or computer
+            playerFound: false,
+            computerFound: false
+        };
+
+        function startGame() {
+            game.playerName = document.getElementById('playerName').value || 'Player';
+            document.querySelector('.setup-screen').classList.remove('active');
+            document.querySelector('.game-screen').classList.add('active');
+        }
+
+        function setPlayerNumber() {
+            const number = parseInt(document.getElementById('playerNumber').value);
+            
+            if (isNaN(number) || number < 1 || number > 100) {
+                alert('Please enter a valid number between 1 and 100');
+                return;
+            }
+
+            game.playerNumber = number;
+            document.getElementById('setupPhase').style.display = 'none';
+            document.getElementById('playingPhase').style.display = 'block';
+            startRound();
+        }
+
+        function startRound() {
+            updateTurnIndicator();
+            showPlayerTurn();
+        }
+
+        function updateTurnIndicator() {
+            const indicator = document.getElementById('turnIndicator');
+            if (game.currentTurn === 'player') {
+                indicator.textContent = `🎯 ${game.playerName}'s Turn to Guess`;
+            } else {
+                indicator.textContent = '🤖 Computer\'s Turn to Guess';
+            }
+            document.getElementById('roundNumber').textContent = game.round;
+        }
+
+        function showPlayerTurn() {
+            document.getElementById('playerTurnSection').style.display = 'block';
+            document.getElementById('computerTurnSection').style.display = 'none';
+            document.getElementById('playerGuess').value = '';
+            document.getElementById('playerResponse').classList.remove('show');
+        }
+
+        function playerGuess() {
+            const guess = parseInt(document.getElementById('playerGuess').value);
+            
+            if (isNaN(guess) || guess < 1 || guess > 100) {
+                alert('Please enter a valid number between 1 and 100');
+                return;
+            }
+
+            const response = document.getElementById('playerResponse');
+            
+            if (guess === game.computerNumber) {
+                response.textContent = `🎉 Correct! You found the Computer's number (${game.computerNumber})!`;
+                response.classList.add('show', 'found');
+                game.playerFound = true;
+                finishGame('player');
+            } else if (guess < game.computerNumber) {
+                response.textContent = `💡 The Computer's number is HIGHER than ${guess}. ⬆️`;
+                response.classList.add('show', 'higher');
+            } else {
+                response.textContent = `💡 The Computer's number is LOWER than ${guess}. ⬇️`;
+                response.classList.add('show', 'lower');
+            }
+
+            setTimeout(() => {
+                if (!game.playerFound) {
+                    game.currentTurn = 'computer';
+                    showComputerTurn();
+                }
+            }, 2000);
+        }
+
+        function showComputerTurn() {
+            document.getElementById('playerTurnSection').style.display = 'none';
+            document.getElementById('computerTurnSection').style.display = 'block';
+            
+            let computerGuess;
+            do {
+                computerGuess = Math.floor(Math.random() * 100) + 1;
+            } while (game.computerGuesses.has(computerGuess));
+            
+            game.computerGuesses.add(computerGuess);
+            document.getElementById('computerGuessDisplay').textContent = `Computer guesses: ${computerGuess}`;
+            document.getElementById('computerResponse').classList.remove('show', 'higher', 'lower', 'correct');
+            updateTurnIndicator();
+        }
+
+        function computerResponse(response) {
+            const computerGuess = parseInt(document.getElementById('computerGuessDisplay').textContent.split(': ')[1]);
+            const responseDiv = document.getElementById('computerResponse');
+            
+            if (response === 'correct') {
+                responseDiv.textContent = `🎉 Computer found your number (${game.playerNumber})!`;
+                responseDiv.classList.add('show', 'found');
+                game.computerFound = true;
+                finishGame('computer');
+            } else if (response === 'higher') {
+                responseDiv.textContent = `Your number is HIGHER than ${computerGuess}. ⬆️`;
+                responseDiv.classList.add('show', 'higher');
+            } else {
+                responseDiv.textContent = `Your number is LOWER than ${computerGuess}. ⬇️`;
+                responseDiv.classList.add('show', 'lower');
+            }
+
+            setTimeout(() => {
+                if (!game.computerFound) {
+                    game.currentTurn = 'player';
+                    game.round++;
+                    showPlayerTurn();
+                }
+            }, 2000);
+        }
+
+        function finishGame(winner) {
+            const winnerScreen = document.getElementById('winnerScreen');
+            const winnerEmoji = document.getElementById('winnerEmoji');
+            const winnerMessage = document.getElementById('winnerMessage');
+            const winnerDetails = document.getElementById('winnerDetails');
+
+            if (winner === 'player') {
+                winnerEmoji.textContent = '🏆';
+                winnerMessage.textContent = `Congratulations, ${game.playerName}!`;
+                winnerDetails.textContent = `You found the Computer's number in ${game.round} round(s)!`;
+            } else {
+                winnerEmoji.textContent = '🤖';
+                winnerMessage.textContent = 'Computer Wins!';
+                winnerDetails.textContent = `The Computer found your number (${game.playerNumber}) in ${game.round} round(s).`;
+            }
+
+            document.querySelector('.game-screen').classList.remove('active');
+            winnerScreen.classList.add('active');
+        }
+
+        function playAgain() {
+            game = {
+                playerName: game.playerName,
+                playerNumber: null,
+                computerNumber: Math.floor(Math.random() * 100) + 1,
+                round: 1,
+                computerGuesses: new Set(),
+                gamePhase: 'playing',
+                currentTurn: 'player',
+                playerFound: false,
+                computerFound: false
+            };
+
+            document.getElementById('winnerScreen').classList.remove('active');
+            document.querySelector('.game-screen').classList.add('active');
+            document.getElementById('setupPhase').style.display = 'block';
+            document.getElementById('playingPhase').style.display = 'none';
+            document.getElementById('playerNumber').value = '';
+        }
+
+        function resetGame() {
+            location.reload();
+        }
+    </script>
+</body>
+</html>
