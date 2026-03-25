@@ -319,10 +319,11 @@
                 <div class="game-section" id="computerTurnSection" style="display: none;">
                     <h3>Computer's Turn</h3>
                     <p class="player-info" id="computerGuessDisplay"></p>
+                    <p class="player-info" id="computerHelpText">Choose feedback based on your secret number compared to computer's guess.</p>
                     <div class="guess-input-group">
-                        <button style="flex: 1;" onclick="computerResponse('higher')">Higher</button>
-                        <button style="flex: 1;" onclick="computerResponse('lower')">Lower</button>
-                        <button style="flex: 1;" onclick="computerResponse('correct')">Correct</button>
+                        <button style="flex: 1;" onclick="computerResponse('higher')">My number is Higher</button>
+                        <button style="flex: 1;" onclick="computerResponse('lower')">My number is Lower</button>
+                        <button style="flex: 1;" onclick="computerResponse('correct')">Computer is Correct</button>
                     </div>
                     <div class="response" id="computerResponse"></div>
                 </div>
@@ -476,6 +477,8 @@
             game.computerGuesses.add(computerGuess);
             document.getElementById('computerGuessDisplay').textContent =
                 `Computer guesses: ${computerGuess} (range ${game.computerMin}-${game.computerMax})`;
+            document.getElementById('computerHelpText').textContent =
+                `If your secret number is bigger than ${computerGuess}, click "My number is Higher". If smaller, click "My number is Lower". If equal, click "Computer is Correct".`;
 
             const responseEl = document.getElementById('computerResponse');
             responseEl.className = 'response';
